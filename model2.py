@@ -467,35 +467,3 @@ def simulate(p: Params | None = None, y0=None, t1: float = 5000.0, n_save: int =
         term, solver, t0=0.0, t1=t1, dt0=1e-4, y0=y0, args=p,
         saveat=saveat, stepsize_controller=controller, max_steps=2_000_000,
     )
-
-
-if __name__ == "__main__":
-    p = default_params()
-    sol = simulate(p)
-    yf = sol.ys[-1]
-
-    print("=== Model 2: glycolysis bistability (exact published rate laws) ===")
-    print("(DOI 10.1371/journal.pone.0098756; equations transcribed in EQUATIONS.md)")
-    print(f"integrated to t = {float(sol.ts[-1]):.0f} h, steps = {sol.stats['num_steps']}, "
-          f"result = {sol.result}")
-
-    print("\nsteady-state metabolites (mM):")
-    for s, val in zip(SPECIES, yf):
-        print(f"  {s:6s} = {float(val): .6e}")
-
-    assert bool(jnp.all(jnp.isfinite(yf))), "non-finite state!"
-    assert bool(jnp.all(yf >= -1e-9)), "negative concentration!"
-
-    dydt = vector_field(sol.ts[-1], yf, p)
-    max_rate = float(jnp.max(jnp.abs(dydt)))
-    glyc = float(r_HK(yf, p))
-    print(f"\nsteady-state check: max|dy/dt| = {max_rate:.3e} mM/h "
-          f"({abs(max_rate / glyc) * 100:.3f}% of glycolytic flux)")
-    assert abs(max_rate / glyc) < 1e-3, "did not reach steady state (increase t1)"
-
-    fl = fluxes(yf, p)
-    print("\nsteady-state fluxes (mM/h):")
-    for name, val in fl.items():
-        print(f"  {name:8s} = {float(val): .6e}")
-    print(f"\nflux balance: HK={float(fl['HK']):.4e}  PFK={float(fl['PFK']):.4e}  "
-          f"PK={float(fl['PK']):.4e}  (lower chain = 2x upper)")

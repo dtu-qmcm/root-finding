@@ -53,10 +53,19 @@ Parameter provenance:
   defaults are chosen to yield a stable positive steady state rather than to
   match the published bistable region exactly.
 
+## Structure
+
+- `model1.py`, `model2.py` — importable RHS modules: parameters
+  (`equinox.Module`), rate laws, and the `vector_field` for each model (plus a
+  `simulate` helper). They define the models but do not run anything on import.
+- `main.py` — example script that imports both models and runs both simulations
+  to steady state, printing states, fluxes, and consistency checks.
+- `make_figures.py` — simulates both models and writes trajectory plots to
+  `figures/`.
+
 ## Running
 
 ```sh
-uv run python model1.py   # toy network: steady state, fluxes, moiety check
-uv run python model2.py   # glycolysis: steady state, fluxes, dy/dt check
-uv run python main.py      # both
+uv run python main.py          # run both example simulations
+uv run python make_figures.py  # regenerate the figures
 ```

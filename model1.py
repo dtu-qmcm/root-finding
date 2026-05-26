@@ -135,30 +135,3 @@ def simulate(
         max_steps=100_000,
     )
     return sol
-
-
-if __name__ == "__main__":
-    p = default_params()
-    bc = default_boundary()
-    y0 = jnp.array([0.1, 0.1, 0.5, 0.5])
-    sol = simulate(y0=y0, p=p, bc=bc)
-
-    yf = sol.ys[-1]
-    names = ["B_c", "C_c", "X1_c", "X2_c"]
-    print("=== Model 1: reversible mass-action network ===")
-    print(f"integrated to t = {float(sol.ts[-1]):.1f}, steps = {sol.stats['num_steps']}")
-    print("\nsteady state:")
-    for n, val in zip(names, yf):
-        print(f"  {n:5s} = {float(val): .6f}")
-
-    v = reaction_rates(yf, p, bc)
-    print("\nfluxes at steady state (should all be ~equal at steady state):")
-    for i, val in enumerate(v, 1):
-        print(f"  v{i} = {float(val): .6e}")
-
-    # Moiety conservation check: X1_c + X2_c is constant.
-    pool0 = float(y0[2] + y0[3])
-    poolf = float(yf[2] + yf[3])
-    print(f"\nX1_c + X2_c : t0 = {pool0:.6f}, tf = {poolf:.6f}, drift = {abs(poolf-pool0):.2e}")
-    assert abs(poolf - pool0) < 1e-6, "moiety X1_c+X2_c not conserved!"
-    print("moiety conservation OK")
