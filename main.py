@@ -13,8 +13,10 @@ Run: uv run python main.py
 
 from __future__ import annotations
 
+import diffrax
 import jax.numpy as jnp
 
+import log_rhs
 import model1
 import model2
 
@@ -77,10 +79,35 @@ def run_model2() -> None:
           f"PK={float(fl['PK']):.4e}  (lower chain = 2x upper)")
 
 
+def run_model2_logspace() -> None:
+    """Integrate model 2 in log space and compare to direct integration."""
+    p = model2.default_params()
+    y0 = jnp.array([1.0, 0.1, 0.1, 0.02, 0.005, 0.04, 0.02,
+                    0.01, 0.05, 0.01, 0.02, 0.05])
+
+    # log-space RHS: d log(x)/dt = f(t, x) / x  (states stay strictly positive)
+    ts, xs = log_rhs.simulate_log(
+        model2.vector_field, y0, p, solver=diffrax.Kvaerno5(), t1=5000.0, dt0=1e-4)
+    x_log = xs[-1]
+    x_direct = model2.simulate(p).ys[-1]
+
+    print("=== Model 2 in log space (d log(x)/dt = f(t,x)/x) ===")
+    print("steady-state comparison (mM):")
+    print(f"  {'species':6s} {'log-space':>14s} {'direct':>14s} {'rel.diff':>10s}")
+    for s, xl, xd in zip(model2.SPECIES, x_log, x_direct):
+        rel = abs(float(xl) - float(xd)) / float(xd)
+        print(f"  {s:6s} {float(xl):14.6e} {float(xd):14.6e} {rel:10.2e}")
+    max_rel = float(jnp.max(jnp.abs(x_log - x_direct) / x_direct))
+    print(f"\nmax relative difference vs direct integration: {max_rel:.2e}")
+    assert max_rel < 1e-4, "log-space steady state disagrees with direct!"
+
+
 def main() -> None:
     run_model1()
     print()
     run_model2()
+    print()
+    run_model2_logspace()
 
 
 if __name__ == "__main__":

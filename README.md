@@ -58,8 +58,14 @@ Parameter provenance:
 - `model1.py`, `model2.py` — importable RHS modules: parameters
   (`equinox.Module`), rate laws, and the `vector_field` for each model (plus a
   `simulate` helper). They define the models but do not run anything on import.
-- `main.py` — example script that imports both models and runs both simulations
-  to steady state, printing states, fluxes, and consistency checks.
+- `log_rhs.py` — wraps any `vector_field` into its log-transformed form,
+  `d log(x)/dt = f(t, exp(u)) / exp(u)` with `u = log(x)`. Integrating in log
+  space keeps every state strictly positive and rescales multiplicative
+  dynamics. Provides `log_vector_field`, pre-wrapped versions for both models,
+  and `simulate_log` (takes/returns original-space concentrations).
+- `main.py` — example script that imports the models and runs all simulations
+  to steady state (model 1, model 2, and model 2 in log space), printing states,
+  fluxes, and consistency checks.
 - `make_figures.py` — simulates both models and writes trajectory plots to
   `figures/`.
 

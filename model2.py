@@ -429,6 +429,7 @@ def fluxes(y, p):
 # ======================================================================= #
 # Vector field: 12 mass balances (confirmed against Information S1)        #
 # ======================================================================= #
+@jax.jit
 def vector_field(t, y, args):
     p = args
     vGLUT = r_GLUT(y, p); vHK = r_HK(y, p); vGPI = r_GPI(y, p)

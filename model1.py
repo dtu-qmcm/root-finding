@@ -95,6 +95,7 @@ STOICH = jnp.array(
 )
 
 
+@jax.jit
 def vector_field(t, y, args):
     """dy/dt = S @ v(y).  y = (B_c, C_c, X1_c, X2_c)."""
     p, bc = args
