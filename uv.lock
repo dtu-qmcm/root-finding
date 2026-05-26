@@ -518,6 +518,7 @@ dependencies = [
     { name = "equinox" },
     { name = "jax" },
     { name = "matplotlib" },
+    { name = "optimistix" },
 ]
 
 [package.metadata]
@@ -526,6 +527,7 @@ requires-dist = [
     { name = "equinox", specifier = ">=0.13.8" },
     { name = "jax", specifier = ">=0.10.1" },
     { name = "matplotlib", specifier = ">=3.10.9" },
+    { name = "optimistix", specifier = ">=0.1.0" },
 ]
 
 [[package]]
